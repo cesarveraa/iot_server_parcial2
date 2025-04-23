@@ -1,6 +1,8 @@
 from datetime import datetime
 from google.cloud.firestore import Client, Query
 from .database import db
+from datetime import datetime
+from google.cloud.firestore import Query
 
 # Colecciones
 NODOS = db.collection("nodos")
@@ -68,6 +70,64 @@ def update_reading(node_id: str, reading_id: str, data: dict) -> dict:
 
 def delete_reading(node_id: str, reading_id: str) -> bool:
     ref = NODOS.document(node_id).collection("lecturas").document(reading_id)
+    if not ref.get().exists:
+        return False
+    ref.delete()
+    return True
+HABITACIONES = db.collection("habitaciones")
+
+
+# ── Helper para nodos por habitación
+def list_nodes_by_habitacion(hab_id: str) -> list:
+    docs = NODOS.where("habitacion_id", "==", hab_id).stream()
+    return [{"id": d.id, **d.to_dict()} for d in docs]
+
+# ── CRUD HABITACIONES
+def create_habitacion(data: dict) -> dict:
+    data["created_at"] = datetime.utcnow()
+    doc = HABITACIONES.document()
+    doc.set(data)
+    return {"id": doc.id, **data, "nodos": []}
+
+def get_habitacion(hab_id: str) -> dict:
+    doc = HABITACIONES.document(hab_id).get()
+    if not doc.exists:
+        return None
+    d = doc.to_dict()
+    hab = {
+        "id": doc.id,
+        **d,
+        "nodos": list_nodes_by_habitacion(hab_id)
+    }
+    return hab
+
+def list_habitaciones() -> list:
+    docs = HABITACIONES.order_by("created_at", direction=Query.DESCENDING).stream()
+    result = []
+    for doc in docs:
+        d = doc.to_dict()
+        hab = {
+            "id": doc.id,
+            **d,
+            "nodos": list_nodes_by_habitacion(doc.id)
+        }
+        result.append(hab)
+    return result
+
+def update_habitacion(hab_id: str, data: dict) -> dict:
+    ref = HABITACIONES.document(hab_id)
+    if not ref.get().exists:
+        return None
+    ref.update(data)
+    d = ref.get().to_dict()
+    return {
+        "id": hab_id,
+        **d,
+        "nodos": list_nodes_by_habitacion(hab_id)
+    }
+
+def delete_habitacion(hab_id: str) -> bool:
+    ref = HABITACIONES.document(hab_id)
     if not ref.get().exists:
         return False
     ref.delete()
