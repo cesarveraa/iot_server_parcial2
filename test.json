@@ -1,14 +1,14 @@
 {
     "info": {
-      "name": "Sensor API – Obtener node_id",
-      "description": "Colección mínima para crear un nodo y listar nodos y así copiar el node_id",
+      "name": "Sensor API – Vercel",
+      "description": "Colección para probar los endpoints de nodos en Vercel",
       "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-      "_postman_id": "e3f4a5b6-7890-12cd-ef34-567890abcdef"
+      "_postman_id": "f4a5b6c7-8901-23de-f456-7890abcdef12"
     },
     "variable": [
       {
         "key": "base_url",
-        "value": "http://localhost:8000",
+        "value": "https://iotparcial2.vercel.app",
         "type": "string"
       }
     ],
@@ -29,8 +29,7 @@
             "host": ["{{base_url}}"],
             "path": ["nodes"]
           }
-        },
-        "response": []
+        }
       },
       {
         "name": "Listar Nodos",
@@ -41,8 +40,7 @@
             "host": ["{{base_url}}"],
             "path": ["nodes"]
           }
-        },
-        "response": []
+        }
       }
     ]
   }
